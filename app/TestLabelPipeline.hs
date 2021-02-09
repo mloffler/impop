@@ -38,6 +38,7 @@ import Nonogram.PathType
 
 import Misc.SpanningTree
 
+
 main :: IO ()
 main = do
   putStrLn "enter file name (without extension)"

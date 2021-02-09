@@ -20,7 +20,7 @@ source-repository head
 library
   exposed-modules:
       Test
-    , Draw, Convert
+    , Draw, Glossify
     , CurveArrangement
     , CurveArrangement.Basic
     , CurveArrangement.Construct
@@ -64,7 +64,8 @@ library
     , Rasterific
     , gloss
     , vector
-    , lens
+    , nonempty-vector >= 0.2.1
+    , lens >= 4.19
     , containers
     , data-default
     , hlist
@@ -73,7 +74,6 @@ library
     , clock, time
     , directory, filepath
     , extra
-    , mios
   default-language: Haskell2010
   default-extensions: TypeFamilies
                     , GADTs
@@ -96,9 +96,6 @@ library
                     , DeriveFunctor
                     , DeriveFoldable
                     , DeriveTraversable
-
-                    , AutoDeriveTypeable
-
 
                     , FlexibleInstances
                     , FlexibleContexts
@@ -123,6 +120,7 @@ executable impop-exe
     , Rasterific
     , gloss
     , vector
+    , nonempty-vector >= 0.2.1
     , lens
     , containers
     , data-default
@@ -132,7 +130,6 @@ executable impop-exe
     , clock, time
     , directory, filepath
     , extra
-    , mios
   default-language: Haskell2010
   default-extensions: TypeFamilies
                     , GADTs
@@ -155,9 +152,6 @@ executable impop-exe
                     , DeriveFunctor
                     , DeriveFoldable
                     , DeriveTraversable
-
-                    , AutoDeriveTypeable
-
 
                     , FlexibleInstances
                     , FlexibleContexts
