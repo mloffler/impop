@@ -23,6 +23,8 @@ import Data.Geometry.BezierSpline
 import CurveArrangement
 import CurveArrangement.Dynamic
 import CurveArrangement.Loader
+import CurveArrangement.Visible
+import CurveArrangement.Selectable
 
 
 
@@ -30,7 +32,7 @@ import CurveArrangement.Loader
 import Graphics.Gloss hiding (Point, Vector, Arc, Path, arc, display)
 import Graphics.Gloss.Interface.Pure.Game hiding (Point, Vector, Arc, Path, arc)
 
-import PSDGlossApp
+import PSDGlossApp hiding (selectable, hoverable, hoverableCurves)
 import PSDGlossApp.Common
 import PSDGlossApp.Visible
 import PSDGlossApp.Forcible

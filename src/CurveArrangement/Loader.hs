@@ -29,46 +29,6 @@ import Control.Lens
 
 import Algorithms.Geometry.Snap
 
-{-
-import Data.List
-import qualified Data.List.NonEmpty as NonEmpty
-import Data.Tree
-import Data.Set (Set)
-import qualified Data.Set as Set
-import Data.Default
-import Data.Foldable (toList)
-
-import Data.Geometry.Point
-import Data.Geometry.Vector hiding (head, init, last)
-import Data.Geometry.LineSegment hiding (endPoints)
-import Data.Geometry.PlanarSubdivision hiding (endPoints)
-import Data.PlanarGraph.Dart 
-
-import Data.Geometry.PlanarSubdivision.ForceDirected
-import Data.Geometry.PlanarSubdivision.More
-
-import Data.Geometry hiding (endPoints, head, init, _direction)
-import qualified Data.CircularSeq as C
-
-import Convert
-
-import Algorithms.Geometry.EuclideanMST.EuclideanMST
-import Algorithms.Geometry.Diameter.Naive
-import Algorithms.Geometry.Misc
-
-
---import CurveArrangement.ForceDirectedStubs
-
-import Nonogram.PathType
-
-
-import Misc.SpanningTree
-import Data.Tree
-
-
-
-import Debug.Trace
--}
 
 -- conclusion: it is ok to write and reload when necessary, just make it modular
 

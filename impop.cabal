@@ -30,6 +30,8 @@ library
     , CurveArrangement.Puz
     , CurveArrangement.Types
     , CurveArrangement.Loader
+    , CurveArrangement.Visible
+    , CurveArrangement.Selectable
     , Data.Geometry.PlanarSubdivision.ForceDirected
     , Data.Geometry.PlanarSubdivision.More
     , Algorithms.Geometry.Misc
