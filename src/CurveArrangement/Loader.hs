@@ -34,14 +34,159 @@ import Algorithms.Geometry.Snap
 
 
 
--- main reader: looks for files that store intermediate products to speed up loading
--- but also checks if time stamps are chronological
+-- | main reader: looks for files that store intermediate products to speed up loading
+--   but also checks if time stamps are chronological
 loadCAR :: (RealFrac r, Coordinate r, Show r) => FilePath -> IO (CA r)
 loadCAR filePath = do
   makePlanar filePath
   makeSnapped filePath
-  fromSnapped filePath
+  -- loadSnappedCAR filePath
+  loadPlanarCAR filePath
 
+
+-- | Read a generic curve arrangement as it is.
+loadGenericCAR :: (RealFrac r, Coordinate r, Show r) => FilePath -> IO (CA r)
+loadGenericCAR filePath = do
+
+  let base   = dropExtensions filePath
+      input  = addExtension base ".ipe"
+
+  -- get the current time
+  start <- time
+  since start
+
+  -- read the ipe page
+  page <- readIpePage input -- :: IO (IpePage Rational)
+  let -- paths :: [Path Rational :+ IpeAttributes Path Rational]
+      paths = concatMap objectPaths $ view content page
+  putStrLn $ "page paths: " ++ show (length paths)
+  writeFile "log/oldpaths.txt" $ unlines $ map show paths
+  since start
+
+
+  let nonopaths = separatePaths paths
+
+  -- extract the contents of the page as a set of curves
+  let -- curves :: [BezierSpline 3 2 Rational :+ IpeAttributes Path Rational]
+      curves = convertPathsToBeziers nonopaths
+  putStrLn $ "converted curves: " ++ show (length curves)
+  writeFile "log/converted.txt" $ unlines $ map show curves
+  since start
+
+  -- compute all intersection points between the curves
+  let -- points :: [[Point 2 Rational]]
+      points = intersectionPoints $ map _core curves
+  putStrLn $ "intersection points: " ++ show ((sum $ map length points))
+  writeFile "log/points.txt" $ unlines $ map show points
+  since start
+
+  -- chop the curves into smaller pieces so they no longer intersect
+  let -- chopped :: [BezierSpline 3 2 Rational :+ IpeAttributes Path Rational]
+      chopped = concat $ zipWith subdivide curves points
+  putStrLn $ "chopped curves: " ++ show (length chopped)
+  writeFile "log/chopped.txt" $ unlines $ map show chopped
+  since start
+
+
+  let car = constructPlanar  chopped
+  putStrLn $ "curve arrangement:" 
+  writeFile "log/car.txt" $ show car
+  since start
+
+
+  return car
+
+
+-- | Read a curve arrangement under the assumption that it is already planar.
+loadPlanarCAR :: (RealFrac r, Coordinate r, Show r) => FilePath -> IO (CA r)
+loadPlanarCAR filePath = do
+
+  let base   = dropExtensions filePath
+      input  = addExtension base ".planar.ipe"
+
+  -- get the current time
+  start <- time
+  since start
+
+
+  -- read the ipe page
+  page <- readIpePage input -- :: IO (IpePage Float)
+  let -- paths :: [Path Float :+ IpeAttributes Path Float]
+      paths = concatMap objectPaths $ view content page
+  putStrLn $ "page paths: " ++ show (length paths)
+  writeFile "log/oldpaths.txt" $ unlines $ map show paths
+  since start
+
+  let nonopaths = separatePaths paths
+
+  -- extract the contents of the page as a set of curves
+  let -- curves :: [BezierSpline 3 2 Float :+ IpeAttributes Path Float]
+      curves = convertPathsToBeziers nonopaths
+  putStrLn $ "converted curves: " ++ show (length curves)
+  writeFile "log/converted.txt" $ unlines $ map show curves
+  since start
+
+  -- snap all curve endpoints that are close to each other
+  let -- snapped :: [BezierSpline 3 2 Float :+ IpeAttributes Path Float]
+      snapped = snap 0.01 curves
+  putStrLn $ "snapped curves: " ++ show (length snapped)
+  writeFile "log/snapped.txt" $ unlines $ map show snapped
+  since start
+
+  let car = constructPlanar  snapped
+  putStrLn $ "curve arrangement:" 
+  writeFile "log/car.txt" $ show car
+  since start
+
+
+  return car
+
+
+
+-- | Read a curve arrangement under the assumption that it is already snapped.
+loadSnappedCAR :: (RealFrac r, Coordinate r, Show r) => FilePath -> IO (CA r)
+loadSnappedCAR filePath = do
+  let base   = dropExtensions filePath
+      input  = addExtension base ".snapped.ipe"
+
+  -- get the current time
+  start <- time
+  since start
+
+  -- read the ipe page
+  page <- readIpePage input -- :: IO (IpePage r)
+  let -- paths :: [Path r :+ IpeAttributes Path r]
+      paths = concatMap objectPaths $ view content page
+  putStrLn $ "page paths: " ++ show (length paths)
+  writeFile "log/oldpaths.txt" $ unlines $ map show paths
+  since start
+
+
+  let nonopaths = separatePaths paths
+
+  -- extract the contents of the page as a set of curves
+  let -- curves :: [BezierSpline 3 2 r :+ IpeAttributes Path r]
+      curves = convertPathsToBeziers nonopaths
+  putStrLn $ "converted curves: " ++ show (length curves)
+  writeFile "log/converted.txt" $ unlines $ map show curves
+  since start
+
+{-
+  -- get collection of line segments
+  let segs = map (bimap (const ()) id) $ map _core $ map seg curves
+  putStrLn $ "segments: " ++ show (length segs)
+  writeFile "log/segments.txt" $ unlines $ map show segs
+  since start
+-}
+
+  -- construct an arrangement from the chopped curves
+  let car = constructPlanar curves
+  putStrLn $ "curve arrangement:" 
+  writeFile "log/car.txt" $ show car
+  since start
+
+
+  return car
 
 -- read an arbitrary ipe file and convert it into a planar one (preserving properties)
 -- might be more generally useful...
@@ -60,6 +205,7 @@ makePlanar filePath =
     -- get the current time
     start <- time
     since start
+
 
     -- read the ipe page
     page <- readIpePage input :: IO (IpePage Rational)
@@ -151,52 +297,6 @@ makeSnapped filePath =
     let newpage = makePage newpaths
     writeIpePage output newpage
     since start
-
-
--- read a supposedly planar and already snapped ipe file
-fromSnapped :: (RealFrac r, Coordinate r, Show r) => FilePath -> IO (CA r)
-fromSnapped filePath = do
-  let base   = dropExtensions filePath
-      input  = addExtension base ".snapped.ipe"
-
-  -- get the current time
-  start <- time
-  since start
-
-  -- read the ipe page
-  page <- readIpePage input -- :: IO (IpePage r)
-  let -- paths :: [Path r :+ IpeAttributes Path r]
-      paths = concatMap objectPaths $ view content page
-  putStrLn $ "page paths: " ++ show (length paths)
-  writeFile "log/oldpaths.txt" $ unlines $ map show paths
-  since start
-
-
-  let nonopaths = separatePaths paths
-
-  -- extract the contents of the page as a set of curves
-  let -- curves :: [BezierSpline 3 2 r :+ IpeAttributes Path r]
-      curves = convertPathsToBeziers nonopaths
-  putStrLn $ "converted curves: " ++ show (length curves)
-  writeFile "log/converted.txt" $ unlines $ map show curves
-  since start
-
-{-
-  -- get collection of line segments
-  let segs = map (bimap (const ()) id) $ map _core $ map seg curves
-  putStrLn $ "segments: " ++ show (length segs)
-  writeFile "log/segments.txt" $ unlines $ map show segs
-  since start
--}
-
-  -- construct an arrangement from the chopped curves
-  let car = constructPlanar curves
-  putStrLn $ "curve arrangement:" 
-  writeFile "log/car.txt" $ show car
-  since start
-
-
-  return car
 
 
 
