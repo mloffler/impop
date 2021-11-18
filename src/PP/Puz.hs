@@ -16,6 +16,8 @@ import Data.Geometry.PlanarSubdivision hiding (endPoints)
 
 import Data.Geometry hiding (endPoints, head, init)
 
+import Data.Ext
+
 --import Convert
 
 import Algorithms.Geometry.Misc
@@ -29,7 +31,7 @@ bezierToPuz :: (RealFrac r, Show r) => BezierSpline 3 2 r -> PuzPath
 bezierToPuz b = beziersToPuz [b]
 
 beziersToPuz :: (RealFrac r, Show r) => [BezierSpline 3 2 r] -> PuzPath
-beziersToPuz bs = pointsToPuzPath $ map (traverse %~ realToFrac) $ concatenate $ map (approximate resolution) bs
+beziersToPuz bs = pointsToPuzPath $ map (traverse %~ realToFrac) $ concatenate $ map (map _core . toList . _points . approximate resolution) bs
   where resolution = 1
 
 concatenate :: Eq a => [[a]] -> [a]

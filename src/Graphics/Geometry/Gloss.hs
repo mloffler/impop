@@ -1,4 +1,4 @@
-module Glossify where
+module Graphics.Geometry.Gloss where
 
 import Control.Lens
 
@@ -65,6 +65,7 @@ glossifySegment s = let (p :+ _, q :+ _) = orderedEndPoints s
                     in G.Line $ map glossifyPoint [p, q]
 
 glossifyBezier :: (RealFrac r, Show r) => r -> r -> BezierSpline 3 2 r -> G.Picture
+--glossifyBezier resolution width b = thickLine (realToFrac width) $ map glossifyPoint $ approximate resolution b
 glossifyBezier resolution width b = thickLine (realToFrac width) $ map glossifyPoint $ map _core $ toList $ _points $ approximate resolution b
 
 

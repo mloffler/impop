@@ -99,8 +99,10 @@ applyForce d i psd = let q = (traverse %~ realToFrac $ psd ^. locationOf i) .+^ 
   in case psd ^. dataOf i . fluid of
     Fluid           -> psd & moveVertex i (traverse %~ realToFrac $ q)
     Fixed p         -> psd
-    Constrained b   -> psd & moveVertex i (traverse %~ realToFrac $ snap b q)
+    Constrained b   -> psd & moveVertex i (traverse %~ realToFrac $ snap treshold b q)
                            & dataOf i . fluid .~ (Constrained b)
+
+treshold = 0.00001
 
 moveVertex :: VertexId' s -> Point 2 r -> PlanarSubdivision s v e f r -> PlanarSubdivision s v e f r
 moveVertex i p psd = psd & locationOf i .~ p

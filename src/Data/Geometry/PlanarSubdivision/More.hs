@@ -18,10 +18,9 @@ import qualified Data.Set as Set
 -- opposite darts
 
 -- | For a given curve arrangement, list all darts pointing into the interior (start of curves).
---   Currently inspects all vertices. Should be made more efficient by only checking boundary
---   vertices, but this fails if the arrangement gets updated (for some reason).
+--   Note: This function fails if the arrangement gets updated (for some reason).
 entryDarts :: PlanarSubdivision s v e f r -> [Dart s]
-entryDarts psd = let vs = vertices' psd -- toList $ boundaryVertices (outerFaceId psd) psd
+entryDarts psd = let vs = toList $ boundaryVertices (outerFaceId psd) psd
                      es = concatMap (\v -> filter (\e -> tailOf e psd == v) $ incidences psd v) vs
                  in filter (\e -> leftFace e psd /= outerFaceId psd && rightFace e psd /= outerFaceId psd) es
 

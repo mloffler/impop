@@ -8,9 +8,9 @@ import qualified Data.List.NonEmpty as NonEmpty
 
 import Data.Default
 
-import Data.Geometry.Ipe
-import Data.Geometry.Ipe.Types
-import Data.Geometry.Ipe.Color (named)
+import Ipe
+import Ipe.Types
+import Ipe.Color (named)
 
 import Data.Geometry.Point
 import Data.Geometry.BezierSpline hiding (snap)

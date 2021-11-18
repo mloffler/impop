@@ -1,7 +1,8 @@
 module Misc.Ipe where
 
-import Data.Geometry.Ipe
-import Data.Geometry.Ipe.Types
+import Ipe
+import Ipe.Reader
+import Ipe.Types
 
 readIpePage :: (Eq r, Coordinate r) => FilePath -> IO (IpePage r)
 readIpePage filepath = do

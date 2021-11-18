@@ -26,7 +26,7 @@ import qualified Data.CircularSeq as C
 
 --import Glossify
 
-import Algorithms.Geometry.EuclideanMST.EuclideanMST
+import Algorithms.Geometry.EuclideanMST
 import Algorithms.Geometry.Diameter.Naive
 import Algorithms.Geometry.Misc
 
@@ -47,6 +47,7 @@ tracingOn = True
 tr :: Show a => String -> a -> a
 tr s a | tracingOn = trace ("\9608 " ++ s ++ ": " ++ show a) a
        | otherwise = a
+
 
 -- | Take a bag of curves, and build their arrangement.
 construct :: (Ord r, Enum r, RealFrac r, Show r) => [BezierSpline 3 2 r :+ NonoPathType] -> CA r
@@ -85,9 +86,10 @@ chopQuadratic curves = concat $ zipWith subdivide curves $ intersectionPoints $ 
 -- first find all intersection points -> need to remember which points belong to which curves
 intersectionPoints :: (Ord r, RealFrac r, Show r) => [BezierSpline 3 2 r] -> [[Point 2 r]]
 intersectionPoints curves = 
-  let n        = length curves
+  let treshold = 0.00001
+      n        = length curves
       pairs    = [(i, j) | j <- [0 .. n - 1], i <- [0 .. j - 1]]
-      pts i j  = intersectB (curves !! i) (curves !! j)
+      pts i j  = intersectB treshold (curves !! i) (curves !! j)
       f (i, j) = zip (repeat i) (pts i j) ++ zip (repeat j) (pts i j)
       points   = concatMap f pairs
   in map removeDuplicates $ groupByFst $ sort points
@@ -112,7 +114,8 @@ goget'm = concat . map snd
 
 -- then subdivide curves based on those points
 subdivide :: (Ord r, RealFrac r, Show r) => BezierSpline 3 2 r :+ e -> [Point 2 r] -> [BezierSpline 3 2 r :+ e]
-subdivide (curve :+ e) points = map (:+ e) $ splitByPoints points curve
+subdivide (curve :+ e) points = map (:+ e) $ splitByPoints treshold points curve
+  where treshold = 0.00001
 
 -- O(n^3) approach
 ------------------
@@ -134,7 +137,7 @@ manyChopMany slayers victims = foldr ($) victims $ map oneChopMany slayers
 oneChopMany :: (Ord r, RealFrac r, Show r, Eq e) => BezierSpline 3 2 r :+ e -> [BezierSpline 3 2 r :+ e] -> [BezierSpline 3 2 r :+ e]
 oneChopMany slayer victims = concatMap (oneChopOne slayer) victims
 oneChopOne :: (Ord r, RealFrac r, Show r, Eq e) => BezierSpline 3 2 r :+ e -> BezierSpline 3 2 r :+ e -> [BezierSpline 3 2 r :+ e]
-oneChopOne (slayer :+ _) (victim :+ b) = map (roundCurveAt treshold) $ map (:+ b) $ splitMany (map (parameterOf victim) $ intersectB slayer victim) victim
+oneChopOne (slayer :+ _) (victim :+ b) = map (roundCurveAt treshold) $ map (:+ b) $ splitMany (map (parameterOf treshold victim) $ intersectB treshold slayer victim) victim
   where
     treshold = 0.001
 

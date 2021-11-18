@@ -28,8 +28,8 @@ import CurveArrangement.Ipe
 
 import Nonogram
 
-import Data.Geometry.Ipe
-import Data.Geometry.Ipe.Types
+import Ipe
+import Ipe.Types
 
 toIpe :: Nonogram -> IpePage Float
 toIpe nono =

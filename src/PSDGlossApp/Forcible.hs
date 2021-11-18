@@ -4,7 +4,7 @@ import Control.Lens
 import Data.Ext
 import Data.Geometry.PlanarSubdivision.ForceDirected
 
-import Glossify
+import Graphics.Geometry.Gloss
 
 import PSDGlossApp.Common
 import PSDGlossApp.Visible

@@ -14,7 +14,7 @@ import Data.PlanarGraph.Dart
 
 import Algorithms.Geometry.Misc
 
-import Glossify
+import Graphics.Geometry.Gloss
 import Draw
 
 import PSDGlossApp.Common
@@ -41,7 +41,7 @@ drawEdgesWith f = drawState %~ (\g st -> Pictures $ g st : eps st)
 --  where eps st = map (\i -> f (i ^. arc) (_subdivision st ^. dataOf i, _subdivision st ^. dataOf (twin i)) (_core $ _subdivision st & edgeSegment i)) $ toList $ edges' $ _subdivision st
 
 drawFacesWith f = drawState %~ (\g st -> Pictures $ g st : fps st)
-  where fps st = map (\(i, p :+ e) -> f (_subdivision st) i e p) $ toList $ rawFacePolygons $ _subdivision st
+  where fps st = map (\(i, p :+ e) -> f (_subdivision st) i e p) $ toList $ internalFacePolygons $ _subdivision st
 
 basicDrawVert :: VertDrawer s v e f r
 basicDrawVert _ _ _ p = Color black $ uncurry Translate (glossify p) $ circleSolid 3

@@ -27,9 +27,9 @@ import CurveArrangement.Basic
 import CurveArrangement.Construct
 --import CurveArrangement.ForceDirectedStubs
 
-import Data.Geometry.Ipe
-import Data.Geometry.Ipe.Types
-import Data.Geometry.Ipe.Color (named)
+import Ipe
+import Ipe.Types
+import Ipe.Color (named)
 import Data.Colour.SRGB (RGB(..))
 
 import Nonogram.PathType

@@ -13,7 +13,7 @@ import Data.Geometry.BezierSpline
 
 
 standardDisplay :: Display
-standardDisplay = InWindow "Window" (512, 512) (100, 100)
+standardDisplay = InWindow "Window" (800, 800) (100, 100)
 
 standardBackground :: Color
 standardBackground = white

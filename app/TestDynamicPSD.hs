@@ -6,6 +6,7 @@ import Control.Lens
 import Data.Ext
 import Data.Foldable (toList)
 import Data.Functor.Identity
+import Data.Default
 
 import Data.Geometry
 import Data.Geometry.PlanarSubdivision
@@ -15,7 +16,8 @@ import qualified Data.CircularSeq as C
 
 import PSDGlossApp
 
-
+instance (Default a, Default b) => Default (a :+ b) where
+  def = def :+ def
 
 main :: IO ()
 main = run ( id

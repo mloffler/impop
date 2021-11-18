@@ -5,8 +5,9 @@ import System.Directory
 
 import Data.Time.Clock
 
-import Data.Geometry.Ipe
-import Data.Geometry.Ipe.Types
+import Ipe
+import Ipe.Reader
+import Ipe.Types
 --import Data.Geometry.Ipe.Color (named)
 
 import Misc.Time

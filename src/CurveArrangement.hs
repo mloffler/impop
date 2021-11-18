@@ -23,14 +23,14 @@ import qualified Data.CircularSeq as C
 import Graphics.Gloss hiding (Point, Vector, Path, Arc, arc, display)
 import Graphics.Gloss.Interface.Pure.Game hiding (Point, Vector, Path, Arc, arc)
 
-import Glossify
+import Graphics.Geometry.Gloss
 
 import PSDGlossApp
 import PSDGlossApp.Common
 import PSDGlossApp.Visible
 
-import Data.Geometry.Ipe
-import Data.Geometry.Ipe.Path
+import Ipe
+import Ipe.Path
 
 import Algorithms.Geometry.Misc
 
@@ -182,5 +182,5 @@ vierkant = simpleFromPoints . map (:+ def)
 
 
 extractFrame :: Real r => CA r -> SimplePolygon () Float
-extractFrame ca = bimap (const ()) (realToFrac) $ _core $ rawFaceBoundary (outerFaceId ca) ca 
+extractFrame ca = bimap (const ()) (realToFrac) $ _core $ faceBoundary (outerFaceId ca) ca 
 

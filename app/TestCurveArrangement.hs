@@ -10,8 +10,9 @@ import Data.Foldable (toList)
 import Data.List
 
 import Data.Geometry hiding (endPoints, head, init)
-import Data.Geometry.Ipe
-import Data.Geometry.Ipe.Types
+import Ipe
+import Ipe.Reader
+import Ipe.Types
 
 import Data.Geometry.Point
 import Data.Geometry.Polygon
@@ -94,12 +95,13 @@ simplify ca = foldr simplifyVertex ca $ filter (degree 2) $ toList $ vertices' c
 
 simplifyVertex :: (Show r, RealFrac r) => VertexId' CAS -> CA r -> CA r
 simplifyVertex j ca = 
-  let [i, k] = toList $ neighboursOf i ca
+  let treshold = 0.0001
+      [i, k] = toList $ neighboursOf i ca
       [ei]   = filter (\e -> tailOf e ca == i) $ common ca i j
       [ek]   = filter (\e -> tailOf e ca == j) $ common ca j k
       bi = edgeBezier ca ei
       bk = edgeBezier ca ek
-  in case Just $ merge bi bk of -- note: right now merge might produce a non-similar curve! should be fixed here, or in "merge"?
+  in case Just $ merge treshold bi bk of -- note: right now merge might produce a non-similar curve! should be fixed here, or in "merge"?
        Nothing -> ca
        Just b  -> ca & mergeEdges ei ek (Just b)
 
@@ -164,10 +166,11 @@ insertWholeCurveState wc ca =
 --   Currently takes linear time.
 locatePoint :: (Ord r, RealFrac r, Show r) => CA r -> Point 2 r -> (CA r, VertexId' CAS)
 locatePoint ca p = 
-  let vs = filter (\i -> closeEnough p $ ca ^. locationOf i) $ toList $ vertices' ca
+  let treshold = 0.0001
+      vs = filter (\i -> closeEnough p $ ca ^. locationOf i) $ toList $ vertices' ca
       es = filter (\i -> closeEnoughB p $ edgeBezier ca i) $ toList $ edges' ca
       result | not $ null vs = (ca, head vs)
-             | not $ null es = locatePoint (subdivideEdge (head es) (parameterOf (edgeBezier ca $ head es) p) ca) p
+             | not $ null es = locatePoint (subdivideEdge (head es) (parameterOf treshold (edgeBezier ca $ head es) p) ca) p
              | otherwise     = error "locatePoint: interior point"
   in result
 
@@ -178,7 +181,7 @@ closeEnough p q = qdA p q < treshold ^ 2
   where treshold = 0.01
 
 closeEnoughB :: (Ord r, RealFrac r, Show r) => Point 2 r -> BezierSpline 3 2 r -> Bool
-closeEnoughB p b = qdA p (snap b p) < treshold ^ 2
+closeEnoughB p b = qdA p (snap 0.0001 b p) < treshold ^ 2
   where treshold = 0.01
 
 degenerate :: (Ord r, Fractional r, Show r) => BezierSpline 3 2 r -> Bool
@@ -191,16 +194,17 @@ insertPiece :: (Ord r, RealFrac r, Show r) => CurveInsertionState r -> CurveInse
 insertPiece state | null $ pie state              = error "insertPiece: empty pie"
                   | degenerate $ head $ pie state = state {pie = tail $ pie state}
                   | otherwise =
-  let ca     = car state
+  let treshold = 0.0001
+      ca     = car state
       q      = ca ^. locationOf (now state)
       piece  = headTrace "insertPiece piece" $ pie state
       r      = fst $ endPoints piece -- q and r are equal, unless the arrangement is moving
       -- find the face that curve is pointing into
       f      = error "how do we find f?" -- head $ incidences ca $ now state
       curves = map (\i -> (i, edgeBezier ca i)) $ toList $ edges' ca -- incidences ca f
-      points = concatMap (\(i, c) -> map (\p -> (i, p)) $ intersectB c piece) curves
+      points = concatMap (\(i, c) -> map (\p -> (i, p)) $ intersectB treshold c piece) curves
       farpts = filter (\(i, p) -> not (closeEnough p q) && not (closeEnough p r)) points
-      params = map (parameterOf piece) $ map snd farpts
+      params = map (parameterOf treshold piece) $ map snd farpts
       sppts  = sort $ zip params farpts
       (t, (i, p)) = headTrace "insertPiece (t, (i, p))" sppts
       result | null farpts = insertPieceInterior state f
@@ -225,9 +229,10 @@ insertPieceInterior state f =
 
 insertPieceOnEdge :: (Ord r, RealFrac r, Show r) => CurveInsertionState r -> r -> Dart CAS -> Point 2 r -> CurveInsertionState r
 insertPieceOnEdge state t i p = 
-  let (a, b) = split t (headTrace "insertPieceOnEdge (a, b)" $ pie state)
+  let treshold = 0.0001
+      (a, b) = split t (headTrace "insertPieceOnEdge (a, b)" $ pie state)
       ca1    = car state
-      u      = parameterOf (edgeBezier ca1 i) p
+      u      = parameterOf treshold (edgeBezier ca1 i) p
       ca2    = subdivideEdge i u ca1
       j      = snd $ locatePoint ca2 p -- can be more efficient
       ca3    = insertEdge (now state) j (Just a) ca2

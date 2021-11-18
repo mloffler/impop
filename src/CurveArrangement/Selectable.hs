@@ -15,8 +15,8 @@ import Data.PlanarGraph.Dart
 
 import Algorithms.Geometry.Misc
 
-import Glossify
-import Draw
+import Graphics.Geometry.Gloss
+--import Draw
 
 import PSDGlossApp.Common
 import PSDGlossApp.Visible
@@ -46,7 +46,7 @@ hoverable = (drawState %~ (\f st -> drawOver (f st) (drawHover (_subdivision st)
     drawHover psd N     = Blank
     drawHover psd (V i) = hoverDrawVert psd i (psd ^. dataOf i) (psd ^. locationOf i)
     drawHover psd (D i) = hoverDrawEdge psd (_arc i) (psd ^. dataOf i, psd ^. dataOf (twin i)) $ _core $ edgeSegment i psd
-    drawHover psd (F i) = hoverDrawFace psd i (psd ^. dataOf i) $ _core $ rawFacePolygon i psd
+    drawHover psd (F i) = hoverDrawFace psd i (psd ^. dataOf i) $ _core $ internalFacePolygon i psd
 
 
 --    handleHover :: Event -> State s v e f r -> State s v e f r
@@ -102,7 +102,7 @@ selectable = (drawState %~ (\f st -> drawOver (f st) $ Pictures $ map (drawSelec
     drawSelection :: (RealFrac r, Show r) => PlanarSubdivision CAS CAV CAE CAF r -> PSE CAS -> Picture
     drawSelection psd (V i) = selecDrawVert psd i (psd ^. dataOf i) (psd ^. locationOf i)
     drawSelection psd (D i) = selecDrawEdge psd (_arc i) (psd ^. dataOf i, psd ^. dataOf (twin i)) $ _core $ edgeSegment i psd
-    drawSelection psd (F i) = selecDrawFace psd i (psd ^. dataOf i) $ _core $ rawFacePolygon i psd
+    drawSelection psd (F i) = selecDrawFace psd i (psd ^. dataOf i) $ _core $ internalFacePolygon i psd
     drawSelection psd N     = Blank
 
     handleSelection (EventKey (MouseButton LeftButton) Down _ _) s
@@ -123,7 +123,7 @@ locate :: RealFrac r => PlanarSubdivision s v e f r -> Point 2 r -> PSE s
 locate psd p = head $ (++ [N]) $ filter (/= N) 
   $  map (vertexScore p) (toList $ vertices psd)
   ++ map (edgeScore p) (toList $ edgeSegments psd)
-  ++ map (faceScore p) (toList $ rawFacePolygons psd)
+  ++ map (faceScore p) (toList $ internalFacePolygons psd)
 
 -- should make efficient implementation for point location - note this is a special kind that dilates vertices and edges
 

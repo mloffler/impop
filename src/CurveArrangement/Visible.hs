@@ -18,8 +18,8 @@ import Data.PlanarGraph.Dart
 
 import Algorithms.Geometry.Misc
 
-import Glossify
-import Draw
+import Graphics.Geometry.Gloss
+--import Draw
 
 import PSDGlossApp
 import PSDGlossApp.Common
@@ -89,7 +89,7 @@ tr s a = trace ("\9608 " ++ s ++ ": " ++ show a) a
 curvedFacePolygon :: (RealFrac r, Show r) => CA r -> FaceId' CAS -> SimplePolygon () r 
 curvedFacePolygon ca i = 
   let curves = map (edgeBezier ca) $ toList $ outerBoundaryDarts i ca
-      points = tail $ removeConsecutiveDuplicates $ concat $ map (approximate resolution) curves
+      points = tail $ removeConsecutiveDuplicates $ concat $ map (map _core . toList . _points . approximate resolution) curves
   in fromPoints $ map (:+ ()) points
   
 -- fromPoints :: [Point 2 r :+ p] -> SimplePolygon p r
