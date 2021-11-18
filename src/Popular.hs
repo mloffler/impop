@@ -21,7 +21,7 @@ import CurveArrangement.Basic
 import Nonogram
 import Nonogram.PathType
 
-import Glossify
+import Graphics.Geometry.Gloss
 
 import PP.Puz
 

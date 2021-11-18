@@ -54,21 +54,23 @@ repeatedly f x = x : case f x of Nothing -> []
                                  Just y  -> repeatedly f y
 
 -- | Given a dart d that points into some vertex v of even degree, report the opposite dart e in the cyclic order around v, coming out of v.
+{-
 oppositeIncidentEdge :: PlanarSubdivision s v e f r -> Dart s -> Maybe (Dart s)
 oppositeIncidentEdge psd d | even n = Just $ head $ filter (\e -> tailOf e psd == v) $ commonDarts psd v w
   where u = tailOf d psd
         v = headOf d psd
         n = degree psd v
         w = nebs !! (n `div` 2)
-        nebs = dropWhile (/= tailOf d psd) $ cycle $ toList $ neighboursOf (headOf d psd) psd
-oppositeIncidentEdge psd d | otherwise = Nothing
-
-{-
-oppositeIncidentEdge :: PlanarSubdivision s v e f r -> Dart s -> Maybe (Dart s)
-oppositeIncidentEdge psd d | even n = Just $ twin $ iterate (flip nextIncidentEdge psd) (d) !! (n `div` 2)
-  where n = degree psd $ headOf d psd
+        nebs = dropWhile (/= u) $ cycle $ toList $ neighboursOf v psd
 oppositeIncidentEdge psd d | otherwise = Nothing
 -}
+
+oppositeIncidentEdge :: PlanarSubdivision s v e f r -> Dart s -> Maybe (Dart s)
+oppositeIncidentEdge psd d | even n = Just $ twin $ iterate (twin . flip nextIncidentEdge psd) (d) !! (n `div` 2)
+  where n = degree psd $ headOf d psd
+oppositeIncidentEdge psd d | otherwise = Nothing
+
+
 
 -- | Get the degree of a vertex.
 degree :: PlanarSubdivision s v e f r -> VertexId' s -> Int

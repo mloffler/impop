@@ -99,13 +99,13 @@ labelTest name = do
   putStrLn $ "nonogram: "
   writeFile "log/nonogram.txt" $ show non
   since start
-
+{-
   -- output the nonogram as puzcode
   let puz = toPuzCode non
   putStrLn $ "puzcode:"
   writeFile ("puz/" ++ name ++ ".puz") puz
   since start
-
+-}
   -- output the nonogram as ipe file
   let ipe = toIpe non
   putStrLn $ "ipe:"

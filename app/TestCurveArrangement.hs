@@ -62,6 +62,7 @@ main = do
   name <- getLine 
   car <- loadCAR ("ipe/" ++ name) :: IO (CA Rational)
   run ( id
+      . traceable    
       . forcibleStubs
       . forcible (curvedForces) -- simpleForces +++ 
 --      . annotVisible 
